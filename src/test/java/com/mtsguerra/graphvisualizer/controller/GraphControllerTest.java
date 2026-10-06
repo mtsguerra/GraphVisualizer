@@ -78,4 +78,18 @@ class GraphControllerTest {
                         .header("Access-Control-Request-Method", "POST"))
                 .andExpect(status().isForbidden());
     }
+
+    @Test
+    void widestAndKruskalAreExposed() throws Exception {
+        String sample = mockMvc.perform(get("/api/sample")).andReturn().getResponse().getContentAsString();
+
+        mockMvc.perform(post("/api/widest").contentType(MediaType.APPLICATION_JSON).content(sample))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.algorithm").value("widest"))
+                .andExpect(jsonPath("$.totalDistance").value(4.0));
+        mockMvc.perform(post("/api/kruskal").contentType(MediaType.APPLICATION_JSON).content(sample))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.algorithm").value("kruskal"))
+                .andExpect(jsonPath("$.totalDistance").value(13.0));
+    }
 }
