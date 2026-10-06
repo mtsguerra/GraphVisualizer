@@ -57,6 +57,10 @@ public final class Graph {
         return nodes.get(nodeId);
     }
 
+    public Collection<Integer> nodeIds() {
+        return nodes.keySet();
+    }
+
     public Collection<Edge> edges() {
         return edges;
     }

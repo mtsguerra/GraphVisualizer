@@ -4,6 +4,8 @@ import com.mtsguerra.graphvisualizer.algorithm.AStar;
 import com.mtsguerra.graphvisualizer.algorithm.BFSAlgorithm;
 import com.mtsguerra.graphvisualizer.algorithm.DFSAlgorithm;
 import com.mtsguerra.graphvisualizer.algorithm.DijkstraAlgorithm;
+import com.mtsguerra.graphvisualizer.algorithm.KruskalAlgorithm;
+import com.mtsguerra.graphvisualizer.algorithm.WidestPathAlgorithm;
 import com.mtsguerra.graphvisualizer.model.AlgorithmResult;
 import com.mtsguerra.graphvisualizer.model.GraphInput;
 import com.mtsguerra.graphvisualizer.model.SampleGraphs;
@@ -21,12 +23,17 @@ public class GraphController {
     private final DFSAlgorithm dfs;
     private final DijkstraAlgorithm dijkstra;
     private final AStar aStar;
+    private final WidestPathAlgorithm widest;
+    private final KruskalAlgorithm kruskal;
 
-    public GraphController(BFSAlgorithm bfs, DFSAlgorithm dfs, DijkstraAlgorithm dijkstra, AStar aStar) {
+    public GraphController(BFSAlgorithm bfs, DFSAlgorithm dfs, DijkstraAlgorithm dijkstra, AStar aStar,
+                           WidestPathAlgorithm widest, KruskalAlgorithm kruskal) {
         this.bfs = bfs;
         this.dfs = dfs;
         this.dijkstra = dijkstra;
         this.aStar = aStar;
+        this.widest = widest;
+        this.kruskal = kruskal;
     }
 
     @PostMapping("/bfs")
@@ -47,6 +54,16 @@ public class GraphController {
     @PostMapping("/astar")
     public AlgorithmResult aStar(@RequestBody GraphInput input) {
         return aStar.run(input);
+    }
+
+    @PostMapping("/widest")
+    public AlgorithmResult widest(@RequestBody GraphInput input) {
+        return widest.run(input);
+    }
+
+    @PostMapping("/kruskal")
+    public AlgorithmResult kruskal(@RequestBody GraphInput input) {
+        return kruskal.run(input);
     }
 
     /** Sample graph the frontend can load and POST straight back to any endpoint. */

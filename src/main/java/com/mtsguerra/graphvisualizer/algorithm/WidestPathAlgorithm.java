@@ -15,11 +15,14 @@ import java.util.PriorityQueue;
 import java.util.Set;
 
 /**
- * Dijkstra's shortest path from startNode to endNode. Steps carry the best
- * known distance: EXPLORING is emitted each time a node's distance improves.
+ * Widest (maximum-bottleneck) path from startNode to endNode: edge weights are
+ * capacities, and a path is as good as its smallest edge. Same shape as Dijkstra
+ * but with a max-heap and {@code min} in place of {@code +}. Step distances carry
+ * the best bottleneck known for the node (the start node has none, so it is null),
+ * and totalDistance is the bottleneck of the returned path.
  */
 @Component
-public class DijkstraAlgorithm implements GraphAlgorithm {
+public class WidestPathAlgorithm implements GraphAlgorithm {
 
     @Override
     public AlgorithmResult run(GraphInput input) {
@@ -29,44 +32,46 @@ public class DijkstraAlgorithm implements GraphAlgorithm {
         graph.requireNonNegativeWeights();
 
         StepRecorder recorder = new StepRecorder();
-        Map<Integer, Double> distances = new HashMap<>(Map.of(start, 0.0));
+        // The start node is unbounded, so it is left out of this map on purpose.
+        Map<Integer, Double> widths = new HashMap<>();
         Map<Integer, Edge> parentEdge = new HashMap<>();
         Set<Integer> settled = new HashSet<>();
-        PriorityQueue<FrontierNode> queue = new PriorityQueue<>(Comparator.comparingDouble(FrontierNode::cost));
-        queue.add(new FrontierNode(start, 0.0));
-        recorder.add(start, StepAction.EXPLORING, null, 0.0);
+        PriorityQueue<FrontierNode> queue =
+                new PriorityQueue<>(Comparator.comparingDouble(FrontierNode::cost).reversed());
+        queue.add(new FrontierNode(start, Double.POSITIVE_INFINITY));
+        recorder.add(start, StepAction.EXPLORING);
 
         while (!queue.isEmpty()) {
             FrontierNode entry = queue.poll();
             int current = entry.node();
-            // Stale entry: this node was already settled through a shorter route.
+            // Stale entry: this node was already settled through a wider route.
             if (!settled.add(current)) {
                 continue;
             }
-            recorder.add(current, StepAction.CURRENT, parentEdge.get(current), entry.cost());
+            recorder.add(current, StepAction.CURRENT, parentEdge.get(current), widths.get(current));
 
             if (current != end) {
                 for (Graph.Neighbor neighbor : graph.neighbors(current)) {
                     if (settled.contains(neighbor.node())) {
                         continue;
                     }
-                    double candidate = entry.cost() + neighbor.edge().weight();
-                    if (candidate < distances.getOrDefault(neighbor.node(), Double.POSITIVE_INFINITY)) {
-                        distances.put(neighbor.node(), candidate);
+                    double candidate = Math.min(entry.cost(), neighbor.edge().weight());
+                    if (candidate > widths.getOrDefault(neighbor.node(), Double.NEGATIVE_INFINITY)) {
+                        widths.put(neighbor.node(), candidate);
                         parentEdge.put(neighbor.node(), neighbor.edge());
                         queue.add(new FrontierNode(neighbor.node(), candidate));
                         recorder.add(neighbor.node(), StepAction.EXPLORING, neighbor.edge(), candidate);
                     }
                 }
             }
-            recorder.add(current, StepAction.VISITED, null, entry.cost());
+            recorder.add(current, StepAction.VISITED, null, widths.get(current));
             if (current == end) {
                 break;
             }
         }
 
-        List<Integer> path = recorder.recordPath(start, end, parentEdge, distances);
-        Double total = path.isEmpty() ? null : distances.get(end);
-        return new AlgorithmResult("dijkstra", recorder.steps(), path, total);
+        List<Integer> path = recorder.recordPath(start, end, parentEdge, widths);
+        Double bottleneck = path.isEmpty() ? null : widths.get(end);
+        return new AlgorithmResult("widest", recorder.steps(), path, bottleneck);
     }
 }
