@@ -48,6 +48,9 @@ export default function App() {
   const steps = result?.steps ?? EMPTY_STEPS
   const visual = useMemo(() => computeVisualState(steps, stepIndex), [steps, stepIndex])
   const needsEnd = ALGORITHMS.find((a) => a.id === algorithm).needsEnd
+  const finished = result != null && stepIndex >= steps.length
+  const labelOf = (id) => graph.nodes.find((n) => n.id === id)?.label ?? id
+  const pathText = finished && result.path?.length > 0 ? result.path.map(labelOf).join(' → ') : null
   const canPlay = startNode != null && (!needsEnd || endNode != null)
 
   /** Any change to the inputs makes the current run stale. */
@@ -231,6 +234,18 @@ export default function App() {
           }}
           pickMode={pickMode}
           onPickModeChange={setPickMode}
+          pathText={pathText}
+          disabled={loading}
+        />
+        <GraphEditor
+          mode={editMode}
+          onModeChange={handleModeChange}
+          edgeWeight={edgeWeight}
+          onEdgeWeightChange={setEdgeWeight}
+          directed={graph.directed}
+          onDirectedChange={(directed) => updateGraph(() => ({ directed }))}
+          onLoadSample={() => loadGraph({ ...SAMPLE_GRAPH, startNode: SAMPLE_START, endNode: SAMPLE_END })}
+          onClear={() => loadGraph({ nodes: [], edges: [], directed: graph.directed })}
           disabled={loading}
         />
         <Controls
@@ -271,17 +286,6 @@ export default function App() {
           requestMs={requestMs}
           nodes={graph.nodes}
         />
-        <GraphEditor
-          mode={editMode}
-          onModeChange={handleModeChange}
-          edgeWeight={edgeWeight}
-          onEdgeWeightChange={setEdgeWeight}
-          directed={graph.directed}
-          onDirectedChange={(directed) => updateGraph(() => ({ directed }))}
-          onLoadSample={() => loadGraph({ ...SAMPLE_GRAPH, startNode: SAMPLE_START, endNode: SAMPLE_END })}
-          onClear={() => loadGraph({ nodes: [], edges: [], directed: graph.directed })}
-          disabled={loading}
-        />
       </aside>
 
       <main className="canvas">
@@ -300,6 +304,13 @@ export default function App() {
           onNodeMoved={handleNodeMoved}
         />
       </main>
+
+      <aside className="tree-panel" aria-label="Tree view">
+        <section className="panel">
+          <h2>Tree</h2>
+          <p className="hint">Tree view coming soon.</p>
+        </section>
+      </aside>
     </div>
   )
 }

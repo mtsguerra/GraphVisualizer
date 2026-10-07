@@ -1,4 +1,14 @@
-import { ALGORITHMS } from '../lib/constants'
+import { ALGORITHMS, COLORS } from '../lib/constants'
+
+const LEGEND = [
+  ['Unvisited', COLORS.unvisited, COLORS.unvisitedBorder],
+  ['Frontier', COLORS.unvisited, COLORS.exploring],
+  ['Evaluating', COLORS.current, COLORS.current],
+  ['Visited', COLORS.visited, COLORS.visitedBorder],
+  ['Final path', COLORS.path, COLORS.path],
+  ['Start', COLORS.start, COLORS.start],
+  ['End', COLORS.end, COLORS.end],
+]
 
 export default function AlgorithmSelector({
   algorithm,
@@ -10,6 +20,7 @@ export default function AlgorithmSelector({
   onEndChange,
   pickMode,
   onPickModeChange,
+  pathText,
   disabled,
 }) {
   const selected = ALGORITHMS.find((a) => a.id === algorithm)
@@ -17,26 +28,17 @@ export default function AlgorithmSelector({
   const togglePick = (kind) => onPickModeChange(pickMode === kind ? null : kind)
 
   return (
-    <section className="panel">
+    <section className="panel compact">
       <h2>Algorithm</h2>
-      <div className="chips" role="radiogroup" aria-label="Algorithm">
+      <select aria-label="Algorithm" title={selected.name} value={algorithm} onChange={(e) => onAlgorithmChange(e.target.value)} disabled={disabled}>
         {ALGORITHMS.map((a) => (
-          <button
-            key={a.id}
-            type="button"
-            role="radio"
-            aria-checked={algorithm === a.id}
-            title={a.name}
-            className={algorithm === a.id ? 'active' : ''}
-            onClick={() => onAlgorithmChange(a.id)}
-            disabled={disabled}
-          >
-            {a.short}
-          </button>
+          <option key={a.id} value={a.id}>
+            {a.name}
+          </option>
         ))}
-      </div>
-      <p className="hint">{selected.name}</p>
+      </select>
 
+      <div className="endpoints">
       <div className="endpoint start">
         <span className="marker" aria-hidden="true">▶</span>
         <select
@@ -59,7 +61,7 @@ export default function AlgorithmSelector({
           onClick={() => togglePick('start')}
           disabled={disabled}
         >
-          Set start
+          Set
         </button>
       </div>
 
@@ -80,10 +82,20 @@ export default function AlgorithmSelector({
           onClick={() => togglePick('end')}
           disabled={disabled}
         >
-          Set end
+          Set
         </button>
       </div>
+      </div>
       {pickMode && <p className="hint accent">Click a node on the canvas to set the {pickMode}. Esc to cancel.</p>}
+      {pathText && <p className="path-line">{pathText}</p>}
+      <ul className="legend">
+        {LEGEND.map(([label, fill, border]) => (
+          <li key={label}>
+            <span className="swatch" style={{ background: fill, borderColor: border }} />
+            {label}
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }

@@ -18,7 +18,7 @@ export default function Controls({
   const hasSteps = totalSteps > 0
 
   return (
-    <section className="panel">
+    <section className="panel compact">
       <h2>Playback</h2>
       <div className="button-row">
         {playing ? (
@@ -47,6 +47,7 @@ export default function Controls({
         </button>
       </div>
 
+      <div className="field-row">
       <label className="field">
         <span>
           Step <output>{hasSteps ? `${stepIndex} / ${totalSteps}` : '—'}</output>
@@ -74,6 +75,7 @@ export default function Controls({
           onChange={(e) => onSpeedChange(Number(e.target.value))}
         />
       </label>
+      </div>
     </section>
   )
 }

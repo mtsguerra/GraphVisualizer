@@ -17,7 +17,7 @@ export default function GraphEditor({
   disabled,
 }) {
   return (
-    <section className="panel">
+    <section className="panel compact">
       <h2>Edit graph</h2>
       <div className="segmented" role="radiogroup" aria-label="Edit mode">
         {MODES.map((m) => (
@@ -36,9 +36,9 @@ export default function GraphEditor({
       </div>
       <p className="hint">{MODES.find((m) => m.id === mode).hint}</p>
 
-      <div className="field-row">
+      <div className="edit-row">
         <label className="field">
-          <span>New edge weight</span>
+          <span>Edge weight</span>
           <input
             type="number"
             min={0}
@@ -57,15 +57,14 @@ export default function GraphEditor({
           />
           Directed
         </label>
-      </div>
-
-      <div className="button-row">
-        <button type="button" onClick={onLoadSample} disabled={disabled}>
-          Load sample
-        </button>
-        <button type="button" onClick={onClear} disabled={disabled}>
-          Clear
-        </button>
+        <div className="button-row">
+          <button type="button" onClick={onLoadSample} disabled={disabled}>
+            Load sample
+          </button>
+          <button type="button" onClick={onClear} disabled={disabled}>
+            Clear
+          </button>
+        </div>
       </div>
     </section>
   )

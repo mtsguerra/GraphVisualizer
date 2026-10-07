@@ -1,15 +1,4 @@
-import { COLORS } from '../lib/constants'
 import { formatDistance } from '../lib/stepState'
-
-const LEGEND = [
-  ['Unvisited', COLORS.unvisited, COLORS.unvisitedBorder],
-  ['Frontier', COLORS.unvisited, COLORS.exploring],
-  ['Evaluating', COLORS.current, COLORS.current],
-  ['Visited', COLORS.visited, COLORS.visitedBorder],
-  ['Final path', COLORS.path, COLORS.path],
-  ['Start', COLORS.start, COLORS.start],
-  ['End', COLORS.end, COLORS.end],
-]
 
 const ACTION_TEXT = {
   exploring: 'is discovered',
@@ -50,7 +39,7 @@ export default function StatsPanel({ result, visual, stepIndex, totalNodes, requ
   const fmt = (n) => (result ? n.toLocaleString() : '—')
 
   return (
-    <section className="panel">
+    <section className="panel compact stats">
       <h2>Statistics</h2>
       <dl className="stat-grid">
         <Card label="Path cost" value={costText(result, finished)} tone="violet" />
@@ -60,7 +49,7 @@ export default function StatsPanel({ result, visual, stepIndex, totalNodes, requ
         <Card
           label="Run time"
           value={requestMs != null ? `${requestMs.toFixed(0)} ms` : '—'}
-          sub={result ? `API round-trip · ${total} anim. steps` : undefined}
+          sub={result ? `Computed · ${total} steps` : undefined}
         />
         <Card label="Nodes visited" value={result ? `${visual.visitedCount} / ${totalNodes}` : '—'} sub={result ? `${percent}%` : undefined} />
       </dl>
@@ -74,18 +63,9 @@ export default function StatsPanel({ result, visual, stepIndex, totalNodes, requ
       >
         <div style={{ width: `${result ? percent : 0}%` }} />
       </div>
-      {finished && result.path?.length > 0 && <p className="path-line">{result.path.map(labelOf).join(' → ')}</p>}
       <p className="step-line" aria-live="polite">
         {describeStep(visual.lastStep, labelOf)}
       </p>
-      <ul className="legend">
-        {LEGEND.map(([label, fill, border]) => (
-          <li key={label}>
-            <span className="swatch" style={{ background: fill, borderColor: border }} />
-            {label}
-          </li>
-        ))}
-      </ul>
     </section>
   )
 }
