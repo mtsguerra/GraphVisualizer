@@ -3,6 +3,7 @@ import AlgorithmSelector from './components/AlgorithmSelector'
 import Controls from './components/Controls'
 import GraphEditor from './components/GraphEditor'
 import StatsPanel from './components/StatsPanel'
+import TreeView from './components/TreeView'
 import Visualizer from './components/Visualizer'
 import { SAMPLE_END, SAMPLE_GRAPH, SAMPLE_START } from './data/sampleGraph'
 import { ALGORITHMS, BASE_STEP_MS, DEFAULT_SPEED } from './lib/constants'
@@ -41,6 +42,7 @@ export default function App() {
   const [pendingNode, setPendingNode] = useState(null)
   const [edgeWeight, setEdgeWeight] = useState('1')
   const [fitVersion, setFitVersion] = useState(0)
+  const [showTree, setShowTree] = useState(false)
 
   // Lets us drop responses for a graph the user has since changed.
   const requestIdRef = useRef(0)
@@ -286,6 +288,14 @@ export default function App() {
           requestMs={requestMs}
           nodes={graph.nodes}
         />
+        <section className="panel tree-panel" aria-label="Tree view">
+          <h2>Tree</h2>
+          <p className="hint">{visual.edges.size > 0 ? `${visual.edges.size} edges so far.` : 'Run an algorithm to build the tree.'}</p>
+          <button type="button" onClick={() => setShowTree(true)}>
+            View current tree
+          </button>
+        </section>
+        {showTree && <TreeView nodes={graph.nodes} startNode={startNode} visual={visual} onClose={() => setShowTree(false)} />}
       </aside>
 
       <main className="canvas">
@@ -304,13 +314,6 @@ export default function App() {
           onNodeMoved={handleNodeMoved}
         />
       </main>
-
-      <aside className="tree-panel" aria-label="Tree view">
-        <section className="panel">
-          <h2>Tree</h2>
-          <p className="hint">Tree view coming soon.</p>
-        </section>
-      </aside>
     </div>
   )
 }
